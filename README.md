@@ -7,3 +7,7 @@ For QB33-SU, remember to use "QB Setting Software" from DENSO WAVE to change bel
   4. BASIC SETTING >> OPERATION >> Make sure "Scanning Completion Command" is set to "READOFF".
 
 If you want to prevent double scan on same code more than one time, remember to set "BASIC SETTING >> OPERATION >> Double-read prevention time" to higher value.
+
+
+QB Setting Software download link from DENSO WAVE: https://www.denso-wave.com/en/adcd/download/category/soft-driver/qb/QBSetting.html
+You need to have account with one QB30 series Serial Number registered under your account to have access to above download link.
