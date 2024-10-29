@@ -12,9 +12,9 @@ namespace TestReadOnOff
     class Program
     {
         static SerialPort sr = new SerialPort();
-        static System.Timers.Timer tmr = new System.Timers.Timer(2000);
-        static byte[] READ_ON = Encoding.UTF8.GetBytes("READON" + Environment.NewLine);
-        static byte[] READ_OFF = Encoding.UTF8.GetBytes("READOFF" + Environment.NewLine);
+        static System.Timers.Timer tmr = new System.Timers.Timer(1000);
+        static byte[] READ_ON = Encoding.UTF8.GetBytes("READON" + '\r');        // Cannot pass in Environment.NewLine, it will not work. must use \r .
+        static byte[] READ_OFF = Encoding.UTF8.GetBytes("READOFF" + '\r');
 
         static void Main(string[] args)
         {
@@ -35,9 +35,9 @@ namespace TestReadOnOff
             {
                 if (sr.IsOpen)
                 {
-                    Thread.Sleep(500);
+                    Thread.Sleep(100);
                     sr.Write(READ_ON, 0, READ_ON.Length);
-                    Thread.Sleep(500);
+                    Thread.Sleep(100);
 
                     sr.Close();
                 }
@@ -53,9 +53,9 @@ namespace TestReadOnOff
             try
             {
                 sr.Open();
-                Thread.Sleep(500);
+                Thread.Sleep(100);
                 sr.Write(READ_ON, 0, READ_ON.Length);
-                Thread.Sleep(500);
+                Thread.Sleep(100);
             }
             catch (Exception e)
             {
@@ -65,23 +65,35 @@ namespace TestReadOnOff
 
         private static void Sr_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            Console.WriteLine(DateTime.Now.ToString("hh:mm:ss"));
+            Console.WriteLine("Incoming data length: " + sr.BytesToRead);
+
             byte[] buffer = new byte[sr.BytesToRead];
             int bytesRead = sr.Read(buffer, 0, buffer.Length);
             Console.WriteLine(Encoding.ASCII.GetString(buffer, 0, bytesRead));
 
+            // Off the reading.
             sr.Write(READ_OFF, 0, READ_OFF.Length);
 
-            Thread.Sleep(3000);
-
-            sr.Write(READ_ON, 0, READ_ON.Length);
-            Thread.Sleep(100);
-            sr.DiscardOutBuffer();
-            sr.DiscardInBuffer();
+            // Start 1 sec timer.
+            tmr.Start();
         }
 
         private static void Tmr_Elapsed(object sender, ElapsedEventArgs e)
         {
-            throw new NotImplementedException();
+            // Stop timer.
+            tmr.Stop();
+
+            Thread.Sleep(100);
+            sr.DiscardInBuffer();
+            sr.DiscardOutBuffer();
+
+            // Re-enable reading.
+            sr.Write(READ_ON, 0, READ_ON.Length);
+
+            Thread.Sleep(100);
+            sr.DiscardInBuffer();
+            sr.DiscardOutBuffer();
         }
     }
 }
